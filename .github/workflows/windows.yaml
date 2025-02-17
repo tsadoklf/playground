@@ -13,7 +13,45 @@
 #           python test_script.py
 
 
-name: Windows Test
+# name: Windows Test
+# on:
+#   push
+
+# jobs:
+#   test:
+#     runs-on: windows-latest
+#     steps:
+#       - uses: actions/checkout@v3
+
+#       - name: Run Docker Container (Bash)
+#         shell: bash
+#         run: |
+#           ls -l
+#           # docker run -d --name test-container \
+#           #   -v "$(pwd):/app" \
+#           #   -w /app \
+#           #   python:3.11-slim \
+#           #   tail -f /dev/null
+
+#       - name: Run Docker Container (Linux Mode)
+#         shell: bash
+#         run: |
+#           docker run --rm --platform linux/amd64 -v "$(pwd):/app" -w /app python:3.11-slim python test_script.py
+
+
+#       - name: Run Tests Inside Docker (Bash)
+#         shell: bash
+#         run: |
+#           docker exec test-container python test_script.py
+
+#       - name: Stop and Remove Container (Bash)
+#         shell: bash
+#         run: |
+#           docker stop test-container
+#           docker rm test-container
+
+
+name: Windows Test with Linux Containers
 on:
   push
 
@@ -23,29 +61,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Run Docker Container (Bash)
-        shell: bash
+      - name: Set Docker to Use Linux Containers
+        shell: powershell
         run: |
-          ls -l
-          # docker run -d --name test-container \
-          #   -v "$(pwd):/app" \
-          #   -w /app \
-          #   python:3.11-slim \
-          #   tail -f /dev/null
+          wsl --set-default-version 2
+          wsl --install -d Ubuntu
+          Restart-Service docker
 
-      - name: Run Docker Container (Linux Mode)
+      - name: Run Tests Inside Linux-Based Python Container
         shell: bash
         run: |
           docker run --rm --platform linux/amd64 -v "$(pwd):/app" -w /app python:3.11-slim python test_script.py
-
-
-      - name: Run Tests Inside Docker (Bash)
-        shell: bash
-        run: |
-          docker exec test-container python test_script.py
-
-      - name: Stop and Remove Container (Bash)
-        shell: bash
-        run: |
-          docker stop test-container
-          docker rm test-container
